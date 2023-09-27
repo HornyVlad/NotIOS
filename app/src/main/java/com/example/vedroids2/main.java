@@ -31,11 +31,6 @@ public class main extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_helloact);
 
-
-
-        String login = new String("Влад");
-        String password = new String("123");
-
         EditText loginField = findViewById(R.id.editTextName);
         EditText passwordField = findViewById(R.id.editTextTextPassword);
 
@@ -44,22 +39,33 @@ public class main extends Activity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                List<User> userList = db.getAllUsers();
-                boolean access = false;
-                for(int i = 0; i < userList.size(); i++) {
-                    if (loginField.getText().toString().equals(userList.get(i)._login) &&
-                            passwordField.getText().toString().equals(userList.get(i)._pass)) {
-                        Intent intent = new Intent(main.this, MyList.class);
-                        String name = loginField.getText().toString();
-                        intent.putExtra("hello", "Привет " + name);
-                        intent.putExtra("account", userList.get(i)._login);
-                        finish();
-                        main.this.startActivity(intent);
-                        access = true;
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        List<User> userList = db.getAllUsers();
+                        boolean access = false;
+                        for(int i = 0; i < userList.size(); i++) {
+                            if (loginField.getText().toString().equals(userList.get(i)._login) &&
+                                    passwordField.getText().toString().equals(userList.get(i)._pass))
+                            {
+                                Intent intent = new Intent(main.this, MyList.class);
+                                String name = loginField.getText().toString();
+                                intent.putExtra("hello", "Привет " + name);
+                                intent.putExtra("account", userList.get(i)._login);
+                                finish();
+                                main.this.startActivity(intent);
+                                access = true;
+                            }
+                        }
+                        if(!access)
+                            attentionText.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    attentionText.setText("Неверный логин или пароль");
+                                }
+                            });
                     }
-                }
-                if(!access)
-                    attentionText.setText("Неверный логин или пароль");
+                }).start();
             }
         });
 

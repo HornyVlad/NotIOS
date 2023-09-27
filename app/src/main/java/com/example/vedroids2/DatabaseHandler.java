@@ -61,16 +61,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return usersList;
     }
 
-    public void replaceUser(User user)
-    {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(DBContract.UserEntry.COLUMN_NAME_LOGIN, user.getLogin());
-        values.put(DBContract.UserEntry.COLUMN_NAME_PASS, user.getPass());
-        db.replace(DBContract.UserEntry.TABLE_NAME, DBContract.UserEntry.COLUMN_NAME_LOGIN, values);
-        db.close();
-    }
-
     public void deleteUser(User user)
     {
         SQLiteDatabase db = this.getWritableDatabase();

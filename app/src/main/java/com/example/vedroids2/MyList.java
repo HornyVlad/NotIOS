@@ -25,8 +25,6 @@ import java.util.List;
 public class MyList extends Activity {
 
     ArrayList<String> myStringArray;
-    int index = 0;
-
     DatabaseHandler db = new DatabaseHandler(this);
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,17 +39,13 @@ public class MyList extends Activity {
         //Создание списка
         myStringArray = new ArrayList<String>();
         List<User> userList  = db.getAllUsers();
+        ArrayAdapter<String> TextAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, myStringArray);
+        ListView textList = findViewById(R.id.textList);
         for(int i = 0; i < userList.size(); i++)
         {
             myStringArray.add(userList.get(i)._login + "\t" + userList.get(i)._pass);
         }
-
-        //Создание динамического списка
-        ArrayAdapter<String> TextAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, myStringArray);
-        ListView textList = findViewById(R.id.textList);
         textList.setAdapter(TextAdapter);
-
-        //Обновление списка
         TextAdapter.notifyDataSetChanged();
 
         //Диалоговое окно
@@ -61,35 +55,55 @@ public class MyList extends Activity {
         String login = arguments.get("account").toString();
         builder.setView(et).setTitle("Укажите новый пароль пользователя").setCancelable(false).setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                for(int i = 0; i < userList.size(); i++)
-                {
-                    if(login.equals(userList.get(i)._login)){
-                        userList.get(i).setPass(et.getText().toString());
-                        db.deleteUser(userList.get(i));
-                        db.addUser(new User(userList.get(i)._login, userList.get(i)._pass));
-                        myStringArray.remove(i);
-                        myStringArray.add(i, userList.get(i)._login + "\t" + userList.get(i)._pass);
-                        TextAdapter.notifyDataSetChanged();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        for(int i = 0; i < userList.size(); i++)
+                        {
+                            if(login.equals(userList.get(i)._login)){
+                                db.deleteUser(userList.get(i));
+                                userList.get(i).setPass(et.getText().toString());
+                                db.addUser(new User(userList.get(i)._login, userList.get(i)._pass));
+                                myStringArray.remove(i);
+                                myStringArray.add(i, userList.get(i)._login + "\t" + userList.get(i)._pass);
+                                textList.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        textList.setAdapter(TextAdapter);
+                                        TextAdapter.notifyDataSetChanged();
+                                    }
+                                });
+                            }
+                        }
+                        dialog.cancel();
                     }
-                }
-                dialog.cancel();
+                }).start();
             }
         });
-
-        // create alert dialog
         AlertDialog alertDialog = builder.create();
 
-        //Функционал кнопка "добавить"
+        //Функционал кнопки "добавить"
         Button buttonAdd = findViewById(R.id.buttonAdd);
         buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText dataLog = findViewById(R.id.editLogin);
-                EditText dataPass = findViewById(R.id.editPassword);
-                userList.add(new User(dataLog.getText().toString(), dataPass.getText().toString()));
-                db.addUser(new User(dataLog.getText().toString(), dataPass.getText().toString()));
-                myStringArray.add(dataLog.getText().toString() + "\t" + dataPass.getText().toString());
-                TextAdapter.notifyDataSetChanged();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        EditText dataLog = findViewById(R.id.editLogin);
+                        EditText dataPass = findViewById(R.id.editPassword);
+                        userList.add(new User(dataLog.getText().toString(), dataPass.getText().toString()));
+                        db.addUser(new User(dataLog.getText().toString(), dataPass.getText().toString()));
+                        myStringArray.add(dataLog.getText().toString() + "\t" + dataPass.getText().toString());
+                        textList.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                textList.setAdapter(TextAdapter);
+                                TextAdapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
+                }).start();
             }
         });
 
@@ -98,20 +112,32 @@ public class MyList extends Activity {
         buttonDel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText dataLog = findViewById(R.id.editLogin);
-                for(int i = 0; i < userList.size(); i++)
-                {
-                    if(dataLog.getText().toString().equals(userList.get(i)._login)){
-                        db.deleteUser(userList.get(i));
-                        myStringArray.remove(i);
-                        userList.remove(i);
-                        i--;
-                        TextAdapter.notifyDataSetChanged();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        EditText dataLog = findViewById(R.id.editLogin);
+                        for(int i = 0; i < userList.size(); i++)
+                        {
+                            if(dataLog.getText().toString().equals(userList.get(i)._login)){
+                                db.deleteUser(userList.get(i));
+                                myStringArray.remove(i);
+                                userList.remove(i);
+                                i--;
+                                textList.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        textList.setAdapter(TextAdapter);
+                                        TextAdapter.notifyDataSetChanged();
+                                    }
+                                });
+                            }
+                        }
                     }
-                }
+                }).start();
             }
         });
 
+        //Функицонал кнопки "изменить"
         Button buttonEdit = findViewById(R.id.buttonEdit);
         buttonEdit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,6 +147,8 @@ public class MyList extends Activity {
             }
         });
     }
+
+
 
     @Override
     protected void onDestroy() {
