@@ -17,48 +17,26 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import java.util.List;
+
 
 public class main extends Activity {
-    int backColor = Color.WHITE;
     SharedPreferences sharedPref;
-    Switch blackThemeSwitch;
-    boolean switchStatus;
+
+    DatabaseHandler db = new DatabaseHandler(this);
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_helloact);
 
-        ConstraintLayout myLayout = findViewById(R.id.mainLayout);
-        blackThemeSwitch = findViewById(R.id.blackTheme);
 
-        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        switchStatus = sharedPref.getBoolean("switchStatus", false);
-        if(switchStatus){
-            backColor = Color.GRAY;
-            myLayout.setBackgroundColor(backColor);
-        }
-        blackThemeSwitch.setChecked(switchStatus);
-        blackThemeSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (blackThemeSwitch.isChecked()) {
-                    switchStatus = true;
-                    backColor = Color.GRAY;
-                    myLayout.setBackgroundColor(backColor);
-                }
-                else {
-                    switchStatus = false;
-                    backColor = Color.WHITE;
-                    myLayout.setBackgroundColor(backColor);
-                }
-            }
-        });
 
-        String name = new String("Влад");
+        String login = new String("Влад");
         String password = new String("123");
 
-        EditText nameField = findViewById(R.id.editTextName);
+        EditText loginField = findViewById(R.id.editTextName);
         EditText passwordField = findViewById(R.id.editTextTextPassword);
 
         TextView attentionText = findViewById(R.id.textView);
@@ -66,17 +44,22 @@ public class main extends Activity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                if(true)
-                {
-                    Intent intent = new Intent(main.this, List.class);
-                    String name = nameField.getText().toString();
-                    intent.putExtra("hello", "Привет " + name);
-                    intent.putExtra("color", backColor);
-                    finish();
-                    main.this.startActivity(intent);
+                List<User> userList = db.getAllUsers();
+                boolean access = false;
+                for(int i = 0; i < userList.size(); i++) {
+                    if (loginField.getText().toString().equals(userList.get(i)._login) &&
+                            passwordField.getText().toString().equals(userList.get(i)._pass)) {
+                        Intent intent = new Intent(main.this, MyList.class);
+                        String name = loginField.getText().toString();
+                        intent.putExtra("hello", "Привет " + name);
+                        intent.putExtra("account", userList.get(i)._login);
+                        finish();
+                        main.this.startActivity(intent);
+                        access = true;
+                    }
                 }
-                else attentionText.setText("Неверный номер или пароль");
+                if(!access)
+                    attentionText.setText("Неверный логин или пароль");
             }
         });
 
@@ -118,10 +101,6 @@ public class main extends Activity {
     protected void onDestroy() {
         super.onDestroy();
 
-        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean("switchStatus",switchStatus);
-        editor.apply();
         Log.i("AppLogger", "Приложение закрыто");
         Toast mytoast = new Toast(this);
         mytoast.makeText(main.this, "Приложение закрыто", Toast.LENGTH_SHORT).show();

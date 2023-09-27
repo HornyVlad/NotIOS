@@ -12,26 +12,35 @@
         <ListView
             android:id="@+id/textList"
             android:layout_width="match_parent"
-            android:layout_height="400dp"
+            android:layout_height="300dp"
             android:layout_marginBottom="0dp">
 
         </ListView>
 
         <EditText
-            android:id="@+id/editTextData"
+            android:id="@+id/editLogin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="text"
             android:layout_marginTop="30dp"
-            android:hint="Ваши данные"/>
+            android:hint="Логин"/>
+
+        <EditText
+            android:id="@+id/editPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="numberPassword"
+            android:hint="Пароль"/>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
+            android:layout_height="wrap_content"
             android:gravity="center"
-            android:layout_marginBottom="50dp">
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp">
 
             <Button
                 android:id="@+id/buttonAdd"
@@ -39,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="15dp"
                 android:text="Добавить"
-                android:textSize="20dp"/>
+                android:textSize="20dp" />
 
             <Button
                 android:id="@+id/buttonDel"
@@ -49,6 +58,15 @@
                 android:text="Удалить"
                 android:textSize="20dp" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/buttonEdit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:text="Изменить пароль"
+            android:textSize="20dp" />
 
     </LinearLayout>
 

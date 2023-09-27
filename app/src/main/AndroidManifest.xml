@@ -20,7 +20,7 @@
             </intent-filter>
 
         </activity>
-        <activity android:name="com.example.vedroids2.List" />
+        <activity android:name="com.example.vedroids2.MyList" />
 
     </application>
 
