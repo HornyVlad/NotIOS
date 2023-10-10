@@ -33,16 +33,12 @@ public class MyList extends Activity {
     DatabaseHandler db = new DatabaseHandler(this);
     EditText dataLog;
     ArrayAdapter<String> TextAdapter;
+    User currentUser;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.list);
         dataLog = findViewById(R.id.editLogin);
-
-        //Вывод имени
-        Bundle arguments = getIntent().getExtras();
-        String str = arguments.get("hello").toString();
-        Toast.makeText(MyList.this, str, Toast.LENGTH_SHORT).show();
 
         //Создание списка
         myStringArray = new ArrayList<String>();
@@ -51,6 +47,11 @@ public class MyList extends Activity {
         {
             myStringArray.add(userList.get(i)._login + "\t" + userList.get(i)._pass);
         }
+
+        //Определяем текущего пользователя
+        Bundle arguments = getIntent().getExtras();
+        int userId = arguments.getInt("account");
+        currentUser = (User)getIntent().getSerializableExtra("account1");
 
         //Создание динамического списка
         TextAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, myStringArray);
@@ -64,19 +65,13 @@ public class MyList extends Activity {
         AlertDialog.Builder builder = new AlertDialog.Builder(MyList.this);
         final EditText et = new EditText(MyList.this);
         et.setHint("Пароль");
-        String login = arguments.get("account").toString();
         builder.setView(et).setTitle("Укажите новый пароль пользователя").setCancelable(false).setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                for(int i = 0; i < userList.size(); i++)
-                {
-                    if(login.equals(userList.get(i)._login)){
-                        userList.get(i).setPass(et.getText().toString());
-                        db.updateUser(userList.get(i), et.getText().toString());
-                        myStringArray.remove(i);
-                        myStringArray.add(i, userList.get(i)._login + "\t" + userList.get(i)._pass);
-                        TextAdapter.notifyDataSetChanged();
-                    }
-                }
+                db.updateUser(currentUser, et.getText().toString());
+                currentUser.setPass(et.getText().toString());
+                myStringArray.remove(userId);
+                myStringArray.add(userId, currentUser.getLogin() + "\t" + currentUser.getPass());
+                TextAdapter.notifyDataSetChanged();
                 dialog.cancel();
             }
         });

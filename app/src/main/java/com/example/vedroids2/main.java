@@ -20,9 +20,9 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class main extends Activity {
     SharedPreferences sharedPref;
@@ -32,6 +32,9 @@ public class main extends Activity {
     EditText loginField;
     EditText passwordField;
     TextView attentionText;
+    User currentUser;
+
+    //public static User currentUser;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,14 +60,13 @@ public class main extends Activity {
 
             userList = (List<User>)msg.obj;
             boolean access = false;
-
             for(int i = 0; i < userList.size(); i++) {
-                if (loginField.getText().toString().equals(userList.get(i)._login) &&
-                        passwordField.getText().toString().equals(userList.get(i)._pass)) {
+                currentUser = userList.get(i);
+                if (loginField.getText().toString().equals(currentUser.getLogin()) &&
+                        passwordField.getText().toString().equals(currentUser.getPass())) {
                     Intent intent = new Intent(main.this, MyList.class);
-                    String name = loginField.getText().toString();
-                    intent.putExtra("hello", "Привет " + name);
-                    intent.putExtra("account", userList.get(i)._login);
+                    intent.putExtra("account", i);
+                    intent.putExtra("account1", currentUser);
                     finish();
                     main.this.startActivity(intent);
                     access = true;

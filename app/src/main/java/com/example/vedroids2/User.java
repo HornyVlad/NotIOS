@@ -1,6 +1,8 @@
 package com.example.vedroids2;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
 
     int _id;
     String _login;
